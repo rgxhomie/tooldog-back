@@ -1,4 +1,9 @@
-export type loginDto = {
-    username: string;
-    password: string;
-};
+import { IsString } from 'class-validator';
+
+export class loginDto {
+    @IsString()
+    readonly username: string;
+  
+    @IsString()
+    readonly password: string;
+  }

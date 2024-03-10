@@ -1,12 +1,42 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthController } from './auth/auth.controller';
-import { AuthService } from './auth/auth.service';
+import { MiddlewareConsumer, Module, ValidationPipe } from '@nestjs/common';
+import { APP_PIPE } from '@nestjs/core';
+import { AuthMiddleware } from './auth/auth.middleware';
+import { SequelizeModule } from '@nestjs/sequelize';
+import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [],
-  controllers: [AppController, AuthController],
-  providers: [AppService, AuthService],
+  imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env'
+    }),
+    SequelizeModule.forRoot({
+      dialect: 'postgres',
+      host: 'localhost',
+      port: 5432,
+      username: '',
+      password: '',
+      database: '',
+      models: [],
+      autoLoadModels: true
+    }),
+    AuthModule
+  ],
+  controllers: [
+  ],
+  providers: [
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe,
+    }
+  ],
 })
-export class AppModule {}
+export class AppModule {
+  configure(
+    consumer: MiddlewareConsumer
+  ) {
+    consumer.apply(AuthMiddleware).forRoutes(
+      '*'
+    );
+  }
+}
