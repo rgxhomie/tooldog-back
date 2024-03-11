@@ -4,6 +4,8 @@ import { AuthMiddleware } from './auth/auth.middleware';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { UserModule } from './user/user.module';
+import { User } from './user/user.model';
 
 @Module({
   imports: [
@@ -14,16 +16,18 @@ import { ConfigModule } from '@nestjs/config';
       dialect: 'postgres',
       host: 'localhost',
       port: 5432,
-      username: '',
-      password: '',
-      database: '',
-      models: [],
+      username: process.env.POSTGRES_USER,
+      password: process.env.POSTGRES_PASSWORD,
+      database: process.env.POSTGRES_DB,
+      models: [
+        User
+      ],
       autoLoadModels: true
     }),
-    AuthModule
+    AuthModule,
+    UserModule
   ],
-  controllers: [
-  ],
+  controllers: [],
   providers: [
     {
       provide: APP_PIPE,
