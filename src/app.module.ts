@@ -6,6 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { User } from './user/user.model';
+import { UserService } from './user/user.service';
 
 @Module({
   imports: [
@@ -40,7 +41,7 @@ export class AppModule {
     consumer: MiddlewareConsumer
   ) {
     consumer.apply(AuthMiddleware).forRoutes(
-      '*'
+      'none'
     );
   }
 }

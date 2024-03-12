@@ -1,10 +1,11 @@
 import { Column, DataType, Table, Model } from "sequelize-typescript";
+import Role from "./user-roles.enum";
 
 export interface IUserCreationAttributes {
-    id: string,
     username: string,
     email: string,
-    pass_hash: string
+    pass_hash: string,
+    role: Role
 }
 
 @Table({
@@ -37,8 +38,13 @@ export class User extends Model<User, IUserCreationAttributes> {
 
     @Column({
         type: DataType.STRING,
-        unique: true,
         allowNull: false,
     })
     pass_hash: string;
+
+    @Column({
+        type: DataType.STRING,
+        allowNull: false,
+    })
+    role: Role;
 }
