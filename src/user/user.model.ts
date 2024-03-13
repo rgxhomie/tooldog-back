@@ -1,5 +1,5 @@
 import { Column, DataType, Table, Model } from "sequelize-typescript";
-import Role from "./user-roles.enum";
+import Role from "./roles.enum";
 
 export interface IUserCreationAttributes {
     username: string,

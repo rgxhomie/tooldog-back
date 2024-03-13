@@ -15,12 +15,6 @@ export class UserService {
         const salt = bcrypt.genSaltSync(10);
         const pass_hash = bcrypt.hashSync(user.password, salt);
 
-        const existingEmail = await this.userRepository.findOne({where: {email: user.email}});
-        if (existingEmail) throw new HttpException('User with this email already exists', HttpStatus.BAD_REQUEST);
-
-        const existingUserName = await this.userRepository.findOne({where: {username: user.username}});
-        if (existingUserName) throw new HttpException('This username is already taken', HttpStatus.BAD_REQUEST);
-
         const createdUser = await this.userRepository.create({
             email: user.email,
             username: user.username,
@@ -28,11 +22,14 @@ export class UserService {
             role: user.role
         });
 
-        return createdUser.dataValues;
+        return createdUser;
     }
 
     async getUserByUsername(username: string) {
         return await this.userRepository.findOne({where: {username}});
     }
 
+    async getUserByEmail(email: string) {
+        return await this.userRepository.findOne({where: {email}});
+    }
 }

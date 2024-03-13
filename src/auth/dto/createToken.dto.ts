@@ -1,4 +1,4 @@
-import Role from "src/user/user-roles.enum";
+import Role from "src/user/roles.enum";
 
 export class createTokenDto {
   readonly username: string;

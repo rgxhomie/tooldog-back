@@ -1,10 +1,10 @@
 import { HttpException, HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
-import { AuthService } from './auth.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
   constructor(
-    private readonly authService: AuthService
+    private readonly jwtService: JwtService
   ) {}
 
   use(req: any, res: any, next: () => void) {
@@ -13,7 +13,11 @@ export class AuthMiddleware implements NestMiddleware {
       throw new HttpException('Unauthorized access', HttpStatus.UNAUTHORIZED);
     }
     
-    this.authService.validateToken(authHeader);
+    try {
+      this.jwtService.verify(authHeader);
+    } catch (error) {
+      throw new HttpException('Unauthorized access', HttpStatus.UNAUTHORIZED);
+    }
 
     next();
   }

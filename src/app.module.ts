@@ -6,7 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { User } from './user/user.model';
-import { UserService } from './user/user.service';
+import { JwtService } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -30,6 +30,7 @@ import { UserService } from './user/user.service';
   ],
   controllers: [],
   providers: [
+    JwtService,
     {
       provide: APP_PIPE,
       useClass: ValidationPipe,

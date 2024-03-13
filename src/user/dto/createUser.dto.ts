@@ -1,4 +1,4 @@
-import Role from "../user-roles.enum";
+import Role from "../roles.enum";
 
 export class createUserDto {
   readonly username: string;
