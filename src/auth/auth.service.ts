@@ -2,44 +2,38 @@ import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@n
 import { registrationDto } from './dto/registration.dto';
 import { UserService } from 'src/user/user.service';
 import Role from 'src/user/roles.enum';
-import { createTokenDto } from './dto/createToken.dto';
 import { loginDto } from './dto/login.dto';
 import * as bcrypt from 'bcryptjs';
+import { TokenService } from 'src/token/token.service';
+import { SessionService } from 'src/session/session.service';
 
 @Injectable()
 export class AuthService {
     constructor(
-        private readonly userService: UserService
+        private readonly userService: UserService,
+        private readonly tokenService: TokenService,
+        private readonly sessionService: SessionService
     ) {}
 
     async register (userData: registrationDto) {
-        try {
-            const createdUser = await this.userService.createUser({
-                username: userData.username,
-                email: userData.email,
-                password: userData.password,
-                role: Role.user
-            });
+        const existingEmail = await this.userService.getUserByEmail(userData.email);
+        if (existingEmail) throw new HttpException('User with this email already exists', HttpStatus.BAD_REQUEST);
 
-            const token = this.generateToken({
-                username: createdUser.username,
-                role: createdUser.role
-            });
+        const existingUsername = await this.userService.getUserByUsername(userData.username);
+        if (existingUsername) throw new HttpException('User with this username already exists', HttpStatus.BAD_REQUEST);
 
-            return {
-                isSuccess: true,
-                user: {
-                    username: createdUser.username,
-                    role: createdUser.role
-                },
-                token
-            }
-        } catch (error) {
-            if (error instanceof HttpException) throw error;
+        const createdUser = await this.userService.createUser({
+            username: userData.username,
+            email: userData.email,
+            password: userData.password,
+            role: Role.user
+        });
 
-            console.log('Error', {error});
-            throw new HttpException('Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        const pair = this.tokenService.generateTokenPair();
+        
+        this.sessionService.createSession(createdUser, pair.refresh, userData.clientId);
+
+        return {}
     }
 
     async login(loginData: loginDto) {
@@ -48,24 +42,14 @@ export class AuthService {
 
         const isCorrectpassword = await bcrypt.compare(loginData.password, candidate.pass_hash);
         if (isCorrectpassword) {
-            const token = this.generateToken({
-                username: candidate.username,
-                role: candidate.role
-            });
-            return {
-                isSuccess: true,
-                user: {
-                    username: candidate.username,
-                    role: candidate.role
-                },
-                token
-            }
+            
+            const pair = this.tokenService.generateTokenPair();
+            
+            this.sessionService.createSession(candidate, pair.refresh, loginData.clientId);
+            
+            return {}
         }
 
         throw new UnauthorizedException('Invalid usernamse or password');
-    }
-
-    generateToken(options: any) {
-        return '';
     }
 }

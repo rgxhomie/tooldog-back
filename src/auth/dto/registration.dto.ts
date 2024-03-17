@@ -15,4 +15,8 @@ export class registrationDto {
   @IsNotEmpty()
   @Length(8, 20)
   readonly password: string;
+
+  @IsString()
+  @IsNotEmpty()
+  readonly clientId: string;
 }

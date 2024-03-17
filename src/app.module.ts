@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { User } from './user/user.model';
 import { SessionModule } from './session/session.module';
 import { Session } from './session/session.model';
+import { TokenModule } from './token/token.module';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { Session } from './session/session.model';
     }),
     AuthModule,
     UserModule,
-    SessionModule
+    SessionModule,
+    TokenModule
   ],
   controllers: [],
   providers: [

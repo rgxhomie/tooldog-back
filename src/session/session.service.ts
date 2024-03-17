@@ -1,14 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { Session } from './session.model';
 import { InjectModel } from '@nestjs/sequelize';
+import { User } from 'src/user/user.model';
 
 @Injectable()
 export class SessionService {
     constructor(
-        @InjectModel(Session) private userRepository: typeof Session
+        @InjectModel(Session) private sessionRepository: typeof Session
     ) {}
 
-    async createSession() {}
+    async createSession(user: User, token: string, clientid: string) {}
 
-    async deleteSession() {}
+    async deleteSession(user: User, clientid: string) {}
 }
