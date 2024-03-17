@@ -1,12 +1,12 @@
-import { MiddlewareConsumer, Module, ValidationPipe } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { APP_PIPE } from '@nestjs/core';
-import { AuthMiddleware } from './auth/auth.middleware';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './user/user.module';
 import { User } from './user/user.model';
-import { JwtService } from '@nestjs/jwt';
+import { SessionModule } from './session/session.module';
+import { Session } from './session/session.model';
 
 @Module({
   imports: [
@@ -15,34 +15,26 @@ import { JwtService } from '@nestjs/jwt';
     }),
     SequelizeModule.forRoot({
       dialect: 'postgres',
-      host: 'localhost',
-      port: 5432,
+      host: process.env.POSTGRES_HOST,
+      port: Number(process.env.POSTGRES_PORT),
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
       models: [
-        User
+        User, Session
       ],
       autoLoadModels: true
     }),
     AuthModule,
-    UserModule
+    UserModule,
+    SessionModule
   ],
   controllers: [],
   providers: [
-    JwtService,
     {
       provide: APP_PIPE,
       useClass: ValidationPipe,
     }
   ],
 })
-export class AppModule {
-  configure(
-    consumer: MiddlewareConsumer
-  ) {
-    consumer.apply(AuthMiddleware).forRoutes(
-      'none'
-    );
-  }
-}
+export class AppModule {}

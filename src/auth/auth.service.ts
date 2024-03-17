@@ -2,7 +2,6 @@ import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@n
 import { registrationDto } from './dto/registration.dto';
 import { UserService } from 'src/user/user.service';
 import Role from 'src/user/roles.enum';
-import { JwtService } from '@nestjs/jwt';
 import { createTokenDto } from './dto/createToken.dto';
 import { loginDto } from './dto/login.dto';
 import * as bcrypt from 'bcryptjs';
@@ -10,8 +9,7 @@ import * as bcrypt from 'bcryptjs';
 @Injectable()
 export class AuthService {
     constructor(
-        private readonly userService: UserService,
-        private readonly JWTService: JwtService
+        private readonly userService: UserService
     ) {}
 
     async register (userData: registrationDto) {
@@ -67,18 +65,7 @@ export class AuthService {
         throw new UnauthorizedException('Invalid usernamse or password');
     }
 
-    private async generateToken(user: createTokenDto) {
-        const payload = {username: user.username, role: user.role};
-        const token = this.JWTService.sign(payload);
-        console.log({token});
-        return token;
-    }
-
-    async validateToken(token: string) {
-        try {
-            return this.JWTService.verify<createTokenDto>(token)
-        } catch (error) {
-            throw new HttpException('Unauthorized access', HttpStatus.UNAUTHORIZED);
-        }
+    generateToken(options: any) {
+        return '';
     }
 }
