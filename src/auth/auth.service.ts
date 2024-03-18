@@ -29,27 +29,39 @@ export class AuthService {
             role: Role.user
         });
 
-        const pair = this.tokenService.generateTokenPair();
+        const pair = this.tokenService.generateTokenPair({
+            userId: createdUser.id,
+            role: createdUser.role,
+            username: createdUser.username
+        });
         
         this.sessionService.createSession(createdUser, pair.refresh, userData.clientId);
 
-        return {}
+        return {
+            pair,
+            createdUser
+        }
     }
 
     async login(loginData: loginDto) {
         const candidate = await this.userService.getUserByUsername(loginData.username);
-        if (!candidate) throw new UnauthorizedException('Invalid usernamse or password');
+        const isCorrectpassword = await bcrypt.compare(loginData.password, candidate?.pass_hash);
 
-        const isCorrectpassword = await bcrypt.compare(loginData.password, candidate.pass_hash);
-        if (isCorrectpassword) {
-            
-            const pair = this.tokenService.generateTokenPair();
-            
-            this.sessionService.createSession(candidate, pair.refresh, loginData.clientId);
-            
-            return {}
+        if (!candidate || !isCorrectpassword) {
+            throw new UnauthorizedException('Invalid usernamse or password');
         }
 
-        throw new UnauthorizedException('Invalid usernamse or password');
+        const pair = this.tokenService.generateTokenPair({
+            userId: candidate.id,
+            role: candidate.role,
+            username: candidate.username
+        });
+            
+        this.sessionService.createSession(candidate, pair.refresh, loginData.clientId);
+        
+        return {
+            pair,
+            candidate
+        }
     }
 }

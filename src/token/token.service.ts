@@ -27,10 +27,10 @@ export class TokenService {
         }
     }
 
-    generateTokenPair() {
+    generateTokenPair(accessPayload: object = {}, refreshPayload: object = {}) {
         return {
-            access: this.generateAccessToken(),
-            refresh: this.generateRefreshToken()
+            access: this.generateAccessToken(accessPayload),
+            refresh: this.generateRefreshToken(refreshPayload)
         }
     }
 
