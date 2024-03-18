@@ -11,7 +11,6 @@ export interface ISessionCreationAttributes {
 @Table({
     tableName: 'sessions',
     schema: 'auth',
-    paranoid: true,
 })
 export class Session extends Model<Session, ISessionCreationAttributes> {
     @Column({
@@ -38,5 +37,5 @@ export class Session extends Model<Session, ISessionCreationAttributes> {
         type: DataType.STRING,
         allowNull: false,
     })
-    clientId: string;
+    clientid: string;
 }
