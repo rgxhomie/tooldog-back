@@ -1,19 +1,54 @@
 import { Injectable } from '@nestjs/common';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class TokenService {
-    validateAccessToken() {}
+    validateAccessToken(token: string) {
+        const secret = process.env.JWT_ACCESS_SECRET;
 
-    validateRefreshToken() {}
+        try {
+            jwt.verify(token, secret);
 
-    generateTokenPair() {
-        return {
-            access: '',
-            refresh: ''
+            return true;
+        } catch (error) {
+            return false;
         }
     }
 
-    generateRefreshToken() {}
+    validateRefreshToken(token: string) {
+        const secret = process.env.JWT_REFRESH_SECRET;
 
-    generateAccessToken() {}
+        try {
+            jwt.verify(token, secret);
+
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    generateTokenPair() {
+        return {
+            access: this.generateAccessToken(),
+            refresh: this.generateRefreshToken()
+        }
+    }
+
+    generateRefreshToken(payload: object = {}) {
+        const secret = process.env.JWT_REFRESH_SECRET;
+        const expiresIn = process.env.JWT_REFRESH_LIFESPAN;
+        
+        const token = jwt.sign(payload, secret, {expiresIn});
+
+        return token;
+    }
+
+    generateAccessToken(payload: object = {}) {
+        const secret = process.env.JWT_ACCESS_SECRET;
+        const expiresIn = process.env.JWT_ACCESS_LIFESPAN;
+        
+        const token = jwt.sign(payload, secret, {expiresIn});
+
+        return token;
+    }
 }
