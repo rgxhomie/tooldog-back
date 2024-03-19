@@ -10,7 +10,7 @@ export class AuthController {
     @Post('register')
     async register(
         @Body() body: registrationDto,
-        @Headers('fingerprint') fp: string
+        @Headers('fingerprint') fp: string = 'unknown'
     ) {
         return await this.authService.register(body, fp);
     }
@@ -18,7 +18,7 @@ export class AuthController {
     @Post('login')
     async login(
         @Body() body: loginDto,
-        @Headers('fingerprint') fp: string
+        @Headers('fingerprint') fp: string = 'unknown'
     ) {
         return await this.authService.login(body, fp);
     }
@@ -27,7 +27,11 @@ export class AuthController {
     async refresh() {}
 
     @Delete('logout')
-    async logout() {}
+    async logout(
+        @Headers('fingerprint') fp: string = 'unknown'
+    ) {
+        return await this.authService.logout(fp);
+    }
 
     @Delete('logoutAll')
     async logoutAll() {}

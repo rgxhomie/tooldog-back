@@ -73,4 +73,8 @@ export class AuthService {
             }
         }
     }
+
+    async logout(clientId: string) {
+        return await this.sessionService.deleteSession(clientId);
+    }
 }

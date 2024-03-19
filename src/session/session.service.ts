@@ -34,13 +34,17 @@ export class SessionService {
         }});
     }
 
-    async deleteSession(user: User, clientid: string) {
+    async deleteSession(clientid: string) {
         const deletedCount = await this.sessionRepository.destroy({where: {
-            userid: user.id,
             clientid
         }});
 
-        return deletedCount < 1;
+        if (deletedCount === 0) throw new Error('Session was not found');
+
+        return {
+            isSuccess: deletedCount > 0,
+            count: deletedCount
+        };
     }
 
     async deleteAllSessions(user: User) {
@@ -48,6 +52,9 @@ export class SessionService {
             userid: user.id
         }});
 
-        return deletedCount < 1;
+        return {
+            isSuccess: deletedCount > 0,
+            count: deletedCount
+        };
     }
 }
