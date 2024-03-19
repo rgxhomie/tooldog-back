@@ -7,11 +7,16 @@ export class TokenService {
         const secret = process.env.JWT_ACCESS_SECRET;
 
         try {
-            jwt.verify(token, secret);
+            const payload = jwt.verify(token, secret);
 
-            return true;
+            return {
+                isValid: true,
+                payload
+            };
         } catch (error) {
-            return false;
+            return {
+                isValid: false
+            };
         }
     }
 
@@ -19,11 +24,16 @@ export class TokenService {
         const secret = process.env.JWT_REFRESH_SECRET;
 
         try {
-            jwt.verify(token, secret);
+            const payload = jwt.verify(token, secret);
 
-            return true;
+            return {
+                isValid: true,
+                payload
+            };
         } catch (error) {
-            return false;
+            return {
+                isValid: false
+            };
         }
     }
 

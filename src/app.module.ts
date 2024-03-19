@@ -8,6 +8,7 @@ import { User } from './user/user.model';
 import { SessionModule } from './session/session.module';
 import { Session } from './session/session.model';
 import { TokenModule } from './token/token.module';
+import { TestModule } from './test/test.module';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { TokenModule } from './token/token.module';
     AuthModule,
     UserModule,
     SessionModule,
-    TokenModule
+    TokenModule,
+    TestModule
   ],
   controllers: [],
   providers: [

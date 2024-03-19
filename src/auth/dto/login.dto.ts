@@ -8,8 +8,4 @@ export class loginDto {
     @IsString()
     @IsNotEmpty()
     readonly password: string;
-
-    @IsString()
-    @IsNotEmpty()
-    readonly clientId: string;
   }

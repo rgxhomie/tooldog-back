@@ -13,9 +13,9 @@ export interface ISessionCreationAttributes {
     schema: 'auth',
 })
 export class Session extends Model<Session, ISessionCreationAttributes> {
+
     @Column({
         type: DataType.STRING,
-        primaryKey: true,
         allowNull: false,
     })
     token: string;
@@ -36,6 +36,7 @@ export class Session extends Model<Session, ISessionCreationAttributes> {
     @Column({
         type: DataType.STRING,
         allowNull: false,
+        primaryKey: true
     })
     clientid: string;
 }

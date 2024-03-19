@@ -2,10 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { Session } from './session.model';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from 'src/user/user.model';
-import timestring from 'timestring';
+import * as timestring from 'timestring';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class SessionService {
+    
     constructor(
         @InjectModel(Session) private sessionRepository: typeof Session
     ) {}
@@ -14,14 +16,22 @@ export class SessionService {
         const lifespanms = timestring(process.env.JWT_REFRESH_LIFESPAN, "ms");
         const expiresAt = new Date(Date.now() + lifespanms).toISOString();
 
+        const salt = bcrypt.genSaltSync(7);
+        const hash = bcrypt.hashSync(token, salt);
+
         await this.sessionRepository.create({
             userid: user.id,
-            token,
+            token: hash,
             clientid,
             expiresAt
         });
+    }
 
-        return;
+    async findSession(user: User, clientId: string) {
+        return await this.sessionRepository.findOne({where: {
+            userid: user.id,
+            clientid: clientId
+        }});
     }
 
     async deleteSession(user: User, clientid: string) {

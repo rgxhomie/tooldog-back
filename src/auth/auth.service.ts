@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { registrationDto } from './dto/registration.dto';
 import { UserService } from 'src/user/user.service';
 import Role from 'src/user/roles.enum';
@@ -15,12 +15,12 @@ export class AuthService {
         private readonly sessionService: SessionService
     ) {}
 
-    async register (userData: registrationDto) {
+    async register (userData: registrationDto, clientId: string) {
         const existingEmail = await this.userService.getUserByEmail(userData.email);
-        if (existingEmail) throw new HttpException('User with this email already exists', HttpStatus.BAD_REQUEST);
+        if (existingEmail) throw new BadRequestException('User with this email already exists');
 
         const existingUsername = await this.userService.getUserByUsername(userData.username);
-        if (existingUsername) throw new HttpException('User with this username already exists', HttpStatus.BAD_REQUEST);
+        if (existingUsername) throw new BadRequestException('User with this username already exists');
 
         const createdUser = await this.userService.createUser({
             username: userData.username,
@@ -30,38 +30,47 @@ export class AuthService {
         });
 
         const pair = this.tokenService.generateTokenPair({
-            userId: createdUser.id,
-            role: createdUser.role,
-            username: createdUser.username
+            id: createdUser.id,
+            role: createdUser.role
         });
         
-        this.sessionService.createSession(createdUser, pair.refresh, userData.clientId);
+        this.sessionService.createSession(createdUser, pair.refresh, clientId);
 
         return {
-            pair,
-            createdUser
+            credentials: pair,
+            user: {
+                id: createdUser.id,
+                username: createdUser.username,
+                role: createdUser.role
+            }
         }
     }
 
-    async login(loginData: loginDto) {
+    async login(loginData: loginDto, clientId: string) {
         const candidate = await this.userService.getUserByUsername(loginData.username);
-        const isCorrectpassword = await bcrypt.compare(loginData.password, candidate?.pass_hash);
+        const isCorrectpassword = await bcrypt.compare(loginData.password, candidate?.pass_hash || '');
 
         if (!candidate || !isCorrectpassword) {
-            throw new UnauthorizedException('Invalid usernamse or password');
+            throw new BadRequestException('Invalid usernamse or password');
         }
 
         const pair = this.tokenService.generateTokenPair({
-            userId: candidate.id,
-            role: candidate.role,
-            username: candidate.username
+            id: candidate.id,
+            role: candidate.role
         });
-            
-        this.sessionService.createSession(candidate, pair.refresh, loginData.clientId);
+        
+        const existingSession = await this.sessionService.findSession(candidate, clientId);
+        if (existingSession) throw new BadRequestException('User logged in.');
+
+        await this.sessionService.createSession(candidate, pair.refresh, clientId);
         
         return {
-            pair,
-            candidate
+            credentials: pair,
+            user: {
+                id: candidate.id,
+                username: candidate.username,
+                role: candidate.role
+            }
         }
     }
 }

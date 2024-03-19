@@ -5,6 +5,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 
 @Module({
   imports: [SequelizeModule.forFeature([Session])],
-  providers: [SessionService]
+  providers: [SessionService],
+  exports: [SessionService]
 })
 export class SessionModule {}

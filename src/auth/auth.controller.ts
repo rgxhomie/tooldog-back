@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { registrationDto } from 'src/auth/dto/registration.dto';
 import { loginDto } from './dto/login.dto';
@@ -8,12 +8,27 @@ export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
     @Post('register')
-    async register(@Body() body: registrationDto) {
-        return await this.authService.register(body);
+    async register(
+        @Body() body: registrationDto,
+        @Headers('fingerprint') fp: string
+    ) {
+        return await this.authService.register(body, fp);
     }
 
     @Post('login')
-    async login(@Body() body: loginDto) {
-        return await this.authService.login(body);
+    async login(
+        @Body() body: loginDto,
+        @Headers('fingerprint') fp: string
+    ) {
+        return await this.authService.login(body, fp);
     }
+
+    @Get('refresh')
+    async refresh() {}
+
+    @Delete('logout')
+    async logout() {}
+
+    @Delete('logoutAll')
+    async logoutAll() {}
 }
