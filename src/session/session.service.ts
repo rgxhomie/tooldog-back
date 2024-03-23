@@ -34,8 +34,9 @@ export class SessionService {
         }});
     }
 
-    async deleteSession(clientid: string) {
+    async deleteSession(user: User, clientid: string) {
         const deletedCount = await this.sessionRepository.destroy({where: {
+            userid: user.id,
             clientid
         }});
 

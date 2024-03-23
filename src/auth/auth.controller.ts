@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Headers, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, Post, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { registrationDto } from 'src/auth/dto/registration.dto';
 import { loginDto } from './dto/login.dto';
+import { AuthGuard } from './auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -26,13 +27,20 @@ export class AuthController {
     @Get('refresh')
     async refresh() {}
 
+    @UseGuards(AuthGuard)
     @Delete('logout')
     async logout(
-        @Headers('fingerprint') fp: string = 'unknown'
+        @Headers('fingerprint') fp: string = 'unknown',
+        @Headers('authorization') token
     ) {
-        return await this.authService.logout(fp);
+        return await this.authService.logout(fp, token);
     }
 
+    @UseGuards(AuthGuard)
     @Delete('logoutAll')
-    async logoutAll() {}
+    async logoutAll(
+        @Headers('authorization') token
+    ) {
+        return await this.authService.logoutAll(token);
+    }
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { registrationDto } from './dto/registration.dto';
 import { UserService } from 'src/user/user.service';
 import Role from 'src/user/roles.enum';
@@ -74,7 +74,27 @@ export class AuthService {
         }
     }
 
-    async logout(clientId: string) {
-        return await this.sessionService.deleteSession(clientId);
+    async logout(clientId: string, authGeader) {
+        const [_, token] = authGeader.split(' ');
+
+        const payload = this.tokenService.validateAccessToken(token);
+
+        const user = await this.userService.getUserById(payload.payload['id']);
+
+        if (!user) throw new InternalServerErrorException('User could not be located');
+
+        return await this.sessionService.deleteSession(user, clientId);
+    }
+
+    async logoutAll(header: string) {
+        const [_, token] = header.split(' ');
+        
+        const payload = this.tokenService.validateAccessToken(token);
+
+        const user = await this.userService.getUserById(payload.payload['id']);
+
+        if (!user) throw new InternalServerErrorException('User could not be located');
+
+        return await this.sessionService.deleteAllSessions(user);
     }
 }
