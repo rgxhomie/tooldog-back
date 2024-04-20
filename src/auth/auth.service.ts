@@ -42,10 +42,10 @@ export class AuthService {
 
   async logIn(username: string, password: string) {
     const user = await this.usersService.user({username});
-    if (!user) throw new UnauthorizedException();
+    if (!user) throw new BadRequestException();
 
     const isValidPassword = await bcrypt.compare(password, user.password);
-    if (!isValidPassword) throw new UnauthorizedException();
+    if (!isValidPassword) throw new BadRequestException();
     
     const tokenPair = await this.generateTokenPair(user.id);
 
